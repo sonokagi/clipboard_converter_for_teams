@@ -10,6 +10,7 @@ namespace clipboard_converter_for_teams
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Hello World!");
         }
     }
 }
