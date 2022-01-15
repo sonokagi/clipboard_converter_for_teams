@@ -19,3 +19,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+ClipboardHelper.cs included in this Software was created by Arthur Teplitzki.
+See https://theartofdev.com/2014/06/12/setting-htmltext-to-clipboard-revisited/
+
+Here is the original copyright notice.
+MIT License (MIT) Copyright (c) 2014 Arthur Teplitzki.
