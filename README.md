@@ -1,0 +1,2 @@
+# clipboard_converter_for_teams
+Microsoft Teams用のクリップボード変換ツール
