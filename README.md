@@ -1,7 +1,7 @@
 # clipboard_converter_for_teams
 Microsoft Teams 向けのクリップボード変換ツールです。  
 クリップボードに格納された投稿やフォルダへのリンクを短縮します。使い方は下記です。  
-1. Teams上で、投稿やファイルで「リンクのコピー」を選択し、クリップボードにリンクをコピーする
+1. Teams上の投稿やファイルで「リンクのコピー」を選択し、クリップボードにリンクをコピーする
 1. このプログラムを実行し、クリップボードの内容を更新する
 1. Teams上でペーストを行うと、短縮された内容がペーストされる
 
@@ -17,7 +17,7 @@ Microsoft Teams 向けのクリップボード変換ツールです。
 
 変換2: 「フォルダへのリンク」をHTMLタグによるリンクに変換する  
 - before(Text形式)  
-  >[https://~.sharepoint.com/~/~/~/~~~~~~~~~~~~~~~~~~~~](https://github.com/sonokagi/clipboard_converter_for_teams)
+  >[https://～.sharepoint.com/～/～/～/～～～～～～～～～](https://github.com/sonokagi/clipboard_converter_for_teams)
 - after(Html形式)  
   >[**_HERE!_**](https://github.com/sonokagi/clipboard_converter_for_teams)
 
