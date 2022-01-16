@@ -12,6 +12,11 @@ namespace ConsoleTest
         [STAThread]
         static void Main(string[] args)
         {
+            // バージョン表示
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+            var ver = assembly.Version;
+            Console.WriteLine($"{assembly.Name} v{ver.Major}.{ver.Minor}");
+
             // 「投稿へのリンク」を変換する
             if (link_to_post_is_stored_in_clipboard())
             {
