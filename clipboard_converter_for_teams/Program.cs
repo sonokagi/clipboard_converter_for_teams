@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ConsoleTest
+namespace clipboard_converter_for_teams
 {
     class Program
     {
@@ -13,9 +13,7 @@ namespace ConsoleTest
         static void Main(string[] args)
         {
             // バージョン表示
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName();
-            var ver = assembly.Version;
-            Console.WriteLine($"{assembly.Name} v{ver.Major}.{ver.Minor}");
+            print_version();
 
             // 「投稿へのリンク」を変換する
             if (link_to_post_is_stored_in_clipboard())
@@ -35,6 +33,13 @@ namespace ConsoleTest
 
             // 少し待つ。コンソールがすぐ消えると動作が分かり難いので
             System.Threading.Thread.Sleep(500);
+        }
+
+        static void print_version()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName();
+            var ver = assembly.Version;
+            Console.WriteLine($"{assembly.Name} v{ver.Major}.{ver.Minor}");
         }
 
         static bool link_to_post_is_stored_in_clipboard()
@@ -139,6 +144,40 @@ namespace ConsoleTest
         }
 
         static void convert_url_text()
+        {
+            // Teams上のファイルやフォルダで「リンクをコピー」すると、クリップボードにText形式でSharePointのURLが格納される
+            // これをHTMLタグのリンクに変換し、Html形式でクリップボードに上書きする
+
+            // クリップボードからデータをTEXT形式で取得
+            string text = Clipboard.GetText(TextDataFormat.Text);
+            Console.WriteLine("--- [before] clipboard data ---");
+            Console.WriteLine(text);
+
+            // HTMLタグで「URLへのリンク」を作る。文字列は固定
+            string link = "<a href=\"" + text + "\"><b><i>HERE!</i></b></a>";
+            Console.WriteLine("--- [after] link to url ---");
+            Console.WriteLine(link);
+
+            // クリップボードに「URLへのリンク」をHtml形式で設定
+            // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
+            ClipboardHelper.CopyToClipboard(link, text);
+        }
+    }
+
+    public static class Url_text
+    {
+        public static bool Is_in_clipboard()
+        {
+            // クリップボードにTEXT形式データがあり
+            if (Clipboard.ContainsText(TextDataFormat.Text))
+            {
+                // そのデータが「http」から始まっていたら、URLと判断する
+                if (Clipboard.GetText(TextDataFormat.Text).StartsWith("http")) return true;
+            }
+
+            return false;
+        }
+        public static void Convert_clipboard()
         {
             // Teams上のファイルやフォルダで「リンクをコピー」すると、クリップボードにText形式でSharePointのURLが格納される
             // これをHTMLタグのリンクに変換し、Html形式でクリップボードに上書きする
