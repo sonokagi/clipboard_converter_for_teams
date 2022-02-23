@@ -51,6 +51,22 @@ namespace UnitTest
             // テキストは変化しない
             Helper.CheckText(text);
         }
+
+        [TestMethod]
+        public void OtherText_Then_NoAction()
+        {
+            string text = "other.....";
+
+            // http以外で始まるテキストがある場合
+            Clipboard.SetText(text, TextDataFormat.Text);
+
+            ClipboardConverterCollection.Execute();
+
+            // テキストは変化しない
+            Helper.CheckText(text);
+            // Html形式データは持たない
+            Helper.CheckHasNoHtmlData();
+        }
     }
 
     [TestClass]
