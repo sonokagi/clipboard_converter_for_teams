@@ -6,13 +6,12 @@ using clipboard_converter_for_teams;
 namespace UnitTest
 {
     [TestClass]
-    public class UnitTest
+    public class ClipboardConverterCollectionTest
     {
         [TestMethod]
-        public void AllwaysFail()
+        public void AllwaysPass()
         {
             ClipboardConverterCollection.Execute();
-            Assert.Fail("first step");
         }
     }
 
