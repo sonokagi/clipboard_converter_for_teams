@@ -68,6 +68,24 @@ namespace UnitTest
             // Html形式データは持たない
             Helper.CheckHasNoHtmlData();
         }
+
+        [TestMethod]
+        public void HtmlDataOnly_Then_NoAction()
+        {
+            string any_html = "any html data";
+
+            // Html形式のデータだけがある場合
+            Clipboard.SetText(any_html, TextDataFormat.Html);
+ 
+            ClipboardConverterCollection.Execute();
+
+            // テキストは持たない
+            Helper.CheckHasNoTextData();
+
+            // Html形式データは変化しない
+            string actual = Clipboard.GetText(TextDataFormat.Html).Trim('\0');
+            Assert.AreEqual(actual, any_html);
+        }
     }
 
     [TestClass]
