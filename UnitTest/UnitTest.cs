@@ -76,7 +76,7 @@ namespace UnitTest
 
             // Html形式のデータだけがある場合
             Helper.SetHtml(any_html);
- 
+
             ClipboardConverterCollection.Execute();
 
             // テキストは持たない
@@ -84,6 +84,31 @@ namespace UnitTest
 
             // Html形式データは変化しない
             Helper.CheckHtml(any_html);
+        }
+
+        [TestMethod]
+        public void HtmlAndText_Then_ShortenHtmlLinkToPost()
+        {
+            // Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの期待値
+            string expect_html_fragment_of_link_to_post  =
+                "<div itemprop=\"teams - copy - link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams - copy - link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
+
+            // 変換結果として期待する、短縮したHtmlデータ
+            string expect_html_fragment_output =
+                "<a href=\"URL\" title=\"TITLE\">POSTED_CONTENTS</a>";
+
+            string any_text = "any text";
+
+            // Html形式とテキスト形式のデータがある場合
+            ClipboardHelper.CopyToClipboard(expect_html_fragment_of_link_to_post, any_text);
+
+            ClipboardConverterCollection.Execute();
+
+            // テキストは変化しない
+            Helper.CheckText(any_text);
+
+            // 短縮したHtmlデータに置き換わる
+            Helper.CheckHtmlFragmentPart(expect_html_fragment_output);
         }
     }
 
@@ -161,7 +186,7 @@ namespace UnitTest
         static string extractFragmentPart(string html)
         {
             string start_keyword = "<!--StartFragment-->";  // 開始キーワード
-            string end_keyword = "<!--EndFragment-->";    // 終了キーワード
+            string end_keyword = "<!--EndFragment-->";      // 終了キーワード
             int start_index = html.IndexOf(start_keyword);  // 開始キーワードの検出位置
             int end_index = html.IndexOf(end_keyword);      // 終了キーワードの検出位置
 
