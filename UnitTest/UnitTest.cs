@@ -8,6 +8,12 @@ namespace UnitTest
     [TestClass]
     public class ClipboardConverterCollectionTest
     {
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Clipboard.Clear();
+        }
+
         [TestMethod]
         public void AllwaysPass()
         {
@@ -33,7 +39,6 @@ namespace UnitTest
             string text = "http.....";
 
             // httpから始まるテキストがある場合
-            Clipboard.Clear();
             Clipboard.SetText(text, TextDataFormat.Text);
 
             ClipboardConverterCollection.Execute();
@@ -51,6 +56,12 @@ namespace UnitTest
         // 分かったこと
         // - htmlデータだけをクリップボードに設定することはできない
         //   plainText引数に null を渡しても、空のテキストが設定されてしまう
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Clipboard.Clear();
+        }
 
         [TestMethod]
         public void SetNullToText_Then_ClipboardHasEmptyText()
