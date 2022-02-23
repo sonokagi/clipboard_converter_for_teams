@@ -13,14 +13,27 @@ namespace UnitTest
         {
             ClipboardConverterCollection.Execute();
         }
+
+        [TestMethod]
+        public void Empty_Then_HasNoTextAndHtml()
+        {
+            // クリップボードが空の場合
+            Clipboard.Clear();
+
+            ClipboardConverterCollection.Execute();
+
+            // テキストもHtml形式データも持たない
+            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), false);
+            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Html), false);
+        }
     }
 
     [TestClass]
     public class ClipboardHelperLearningTest
     {
-        //分かったこと
-        //- htmlデータだけをクリップボードに設定することはできない
-        //  plainText引数に null を渡しても、空のテキストが設定されてしまう
+        // 分かったこと
+        // - htmlデータだけをクリップボードに設定することはできない
+        //   plainText引数に null を渡しても、空のテキストが設定されてしまう
 
         [TestMethod]
         public void SetNullToText_Then_ClipboardHasEmptyText()
