@@ -75,7 +75,7 @@ namespace UnitTest
             string any_html = "any html data";
 
             // Html形式のデータだけがある場合
-            Clipboard.SetText(any_html, TextDataFormat.Html);
+            Helper.SetHtml(any_html);
  
             ClipboardConverterCollection.Execute();
 
@@ -83,8 +83,7 @@ namespace UnitTest
             Helper.CheckHasNoTextData();
 
             // Html形式データは変化しない
-            string actual = Clipboard.GetText(TextDataFormat.Html).Trim('\0');
-            Assert.AreEqual(actual, any_html);
+            Helper.CheckHtml(any_html);
         }
     }
 
@@ -134,6 +133,20 @@ namespace UnitTest
         public static void CheckText(string expect)
         {
             string actual = Clipboard.GetText(TextDataFormat.Text);
+            Assert.AreEqual(actual, expect);
+        }
+
+        // 指定のHtmlデータをクリップボードに設定する
+        public static void SetHtml(string expect)
+        {
+            Clipboard.SetText(expect, TextDataFormat.Html);
+        }
+
+        // Htmlデータが期待通りかチェックする
+        public static void CheckHtml(string expect)
+        {
+            // Html形式データを取得時、最後に終端'\0'がつくようなので削除する
+            string actual = Clipboard.GetText(TextDataFormat.Html).TrimEnd('\0');
             Assert.AreEqual(actual, expect);
         }
 
