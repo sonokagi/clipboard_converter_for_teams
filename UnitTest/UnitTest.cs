@@ -26,6 +26,23 @@ namespace UnitTest
             Helper.CheckHasNoTextData();
             Helper.CheckHasNoHtmlData();
         }
+
+        [TestMethod]
+        public void TextStartWithHttp_Then_CreateHtmlFormatLink()
+        {
+            string text = "http.....";
+
+            // httpから始まるテキストがある場合
+            Clipboard.Clear();
+            Clipboard.SetText(text, TextDataFormat.Text);
+
+            ClipboardConverterCollection.Execute();
+
+            // html形式のリンクが生成される
+            Helper.CheckHasHtmlData();
+            // テキストは変化しない
+            Helper.CheckText(text);
+        }
     }
 
     [TestClass]
@@ -71,6 +88,10 @@ namespace UnitTest
         public static void CheckHasNoTextData()
         {
             Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), false);
+        }
+        public static void CheckHasHtmlData()
+        {
+            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Html), true);
         }
 
         public static void CheckHasNoHtmlData()
