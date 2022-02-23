@@ -100,7 +100,7 @@ namespace UnitTest
             string any_text = "any text";
 
             // Html形式とテキスト形式のデータがある場合
-            ClipboardHelper.CopyToClipboard(expect_html_fragment_of_link_to_post, any_text);
+            Helper.SetHtmlFragmentPartAndSetText(expect_html_fragment_of_link_to_post, any_text);
 
             ClipboardConverterCollection.Execute();
 
@@ -173,6 +173,15 @@ namespace UnitTest
             // Html形式データを取得時、最後に終端'\0'がつくようなので削除する
             string actual = Clipboard.GetText(TextDataFormat.Html).TrimEnd('\0');
             Assert.AreEqual(actual, expect);
+        }
+
+        // 指定のHtmlデータをフォーマット変換してクリップボードに設定し、かつ、指定のTextデータをクリップボードに設定する
+        // - Html形式データをクリップボードに格納する場合、下記URLのような変換が必要
+        //   https://docs.microsoft.com/ja-jp/windows/win32/dataxchg/html-clipboard-format
+        // - Htmlとテキストを設定する場合、両方を同時に設定する必要があり、処理を分割できない
+        public static void SetHtmlFragmentPartAndSetText(string expect_html_fragment_part, string expect_text)
+        {
+            ClipboardHelper.CopyToClipboard(expect_html_fragment_part, expect_text);
         }
 
         // Htmlデータの <!--StartFragment--> ～ <!--EndFragment--> の部分が期待通りかチェックする
