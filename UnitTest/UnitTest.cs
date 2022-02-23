@@ -15,12 +15,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void AllwaysPass()
-        {
-            ClipboardConverterCollection.Execute();
-        }
-
-        [TestMethod]
         public void Empty_Then_NoAction()
         {
             // クリップボードが空の場合
@@ -28,7 +22,7 @@ namespace UnitTest
 
             ClipboardConverterCollection.Execute();
 
-            // テキストもHtml形式データも持たない
+            // テキストもHtml形式データも無しのまま
             Helper.CheckHasNoTextData();
             Helper.CheckHasNoHtmlData();
         }
@@ -46,7 +40,7 @@ namespace UnitTest
             // テキストは変化しない
             Helper.CheckText(http_text);
 
-            // html形式のリンクが生成される
+            // Html形式データにリンクが格納される
             string html_format_link = "<a href=\"" + http_text + "\"><b><i>HERE!</i></b></a>";
             Helper.CheckHasHtmlData();
             Helper.CheckHtmlFragmentPart(html_format_link);
@@ -65,7 +59,7 @@ namespace UnitTest
             // テキストは変化しない
             Helper.CheckText(other_text);
 
-            // Html形式データは持たない
+            // Html形式データは無しのまま
             Helper.CheckHasNoHtmlData();
         }
 
@@ -79,7 +73,7 @@ namespace UnitTest
 
             ClipboardConverterCollection.Execute();
 
-            // テキストは持たない
+            // テキストは無しのまま
             Helper.CheckHasNoTextData();
 
             // Html形式データは変化しない
@@ -99,7 +93,7 @@ namespace UnitTest
 
             string any_text = "any text";
 
-            // Html形式とテキスト形式のデータがある場合
+            // Html形式データとテキストの両方がある場合
             Helper.SetHtmlFragmentPartAndSetText(expect_html_fragment_of_link_to_post, any_text);
 
             ClipboardConverterCollection.Execute();
@@ -107,7 +101,7 @@ namespace UnitTest
             // テキストは変化しない
             Helper.CheckText(any_text);
 
-            // 短縮したHtmlデータに置き換わる
+            // Html形式データが短縮したデータに置き換わる
             Helper.CheckHtmlFragmentPart(expect_html_fragment_output);
         }
     }
