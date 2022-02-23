@@ -27,11 +27,9 @@ namespace UnitTest
         {
             // テキストを null で指定した場合
             ClipboardHelper.CopyToClipboard("html", null);
-            // テキストデータを持つ
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), true);
-            // テキストデータは空になる
-            string actual = Clipboard.GetText(TextDataFormat.Text);
-            Assert.AreEqual(actual, String.Empty);
+            // 空のテキストデータが格納される
+            Helper.CheckHasTextData();
+            Helper.CheckText(String.Empty);
         }
 
         [TestMethod]
@@ -39,11 +37,22 @@ namespace UnitTest
         {
             // テキストを空で指定した場合
             ClipboardHelper.CopyToClipboard("html", String.Empty);
-            // テキストデータを持つ
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), true);
-            // テキストデータは空になる
+            // 空のテキストデータが格納される
+            Helper.CheckHasTextData();
+            Helper.CheckText(String.Empty);
+        }
+    }
+    public static class Helper
+    {
+        public static void CheckText(string expect)
+        {
             string actual = Clipboard.GetText(TextDataFormat.Text);
-            Assert.AreEqual(actual, String.Empty);
+            Assert.AreEqual(actual, expect);
+        }
+
+        public static void CheckHasTextData()
+        {
+            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), true);
         }
     }
 }
