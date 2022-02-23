@@ -21,7 +21,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void Empty_Then_HasNoTextAndHtml()
+        public void Empty_Then_NoAction()
         {
             // クリップボードが空の場合
             Clipboard.Clear();
@@ -36,34 +36,35 @@ namespace UnitTest
         [TestMethod]
         public void TextStartWithHttp_Then_CreateHtmlFormatLink()
         {
-            string text = "http.....";
+            string http_text = "http.....";
 
             // httpから始まるテキストがある場合
-            Clipboard.SetText(text, TextDataFormat.Text);
+            Helper.SetText(http_text);
 
             ClipboardConverterCollection.Execute();
 
+            // テキストは変化しない
+            Helper.CheckText(http_text);
+
             // html形式のリンクが生成される
-            string html_format_link = "<a href=\"" + text + "\"><b><i>HERE!</i></b></a>";
+            string html_format_link = "<a href=\"" + http_text + "\"><b><i>HERE!</i></b></a>";
             Helper.CheckHasHtmlData();
             Helper.CheckHtmlFragmentPart(html_format_link);
-
-            // テキストは変化しない
-            Helper.CheckText(text);
         }
 
         [TestMethod]
         public void OtherText_Then_NoAction()
         {
-            string text = "other.....";
+            string other_text = "other.....";
 
             // http以外で始まるテキストがある場合
-            Clipboard.SetText(text, TextDataFormat.Text);
+            Helper.SetText(other_text);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
-            Helper.CheckText(text);
+            Helper.CheckText(other_text);
+
             // Html形式データは持たない
             Helper.CheckHasNoHtmlData();
         }
@@ -105,13 +106,18 @@ namespace UnitTest
     }
     public static class Helper
     {
+        // 指定のTextデータをクリップボードに設定する
+        public static void SetText(string expect)
+        {
+            Clipboard.SetText(expect, TextDataFormat.Text);
+        }
+
         // Textデータが期待通りかチェックする
         public static void CheckText(string expect)
         {
             string actual = Clipboard.GetText(TextDataFormat.Text);
             Assert.AreEqual(actual, expect);
         }
-
 
         // Htmlデータの <!--StartFragment--> ～ <!--EndFragment--> の部分が期待通りかチェックする
         public static void CheckHtmlFragmentPart(string expect)
