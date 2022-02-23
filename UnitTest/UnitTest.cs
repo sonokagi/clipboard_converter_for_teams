@@ -44,7 +44,10 @@ namespace UnitTest
             ClipboardConverterCollection.Execute();
 
             // html形式のリンクが生成される
+            string html_format_link = "<a href=\"" + text + "\"><b><i>HERE!</i></b></a>";
             Helper.CheckHasHtmlData();
+            Helper.CheckHtmlFragmentPart(html_format_link);
+
             // テキストは変化しない
             Helper.CheckText(text);
         }
