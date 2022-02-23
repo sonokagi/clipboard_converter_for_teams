@@ -23,8 +23,8 @@ namespace UnitTest
             ClipboardConverterCollection.Execute();
 
             // テキストもHtml形式データも持たない
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), false);
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Html), false);
+            Helper.CheckHasNoTextData();
+            Helper.CheckHasNoHtmlData();
         }
     }
 
@@ -66,6 +66,16 @@ namespace UnitTest
         public static void CheckHasTextData()
         {
             Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), true);
+        }
+
+        public static void CheckHasNoTextData()
+        {
+            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), false);
+        }
+
+        public static void CheckHasNoHtmlData()
+        {
+            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Html), false);
         }
     }
 }
