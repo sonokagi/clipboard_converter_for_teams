@@ -40,9 +40,8 @@ namespace UnitTest
             // テキストは変化しない
             Helper.CheckText(http_text);
 
-            // Html形式データにリンクが格納される
+            // Htmlデータにリンクが格納される
             string html_format_link = "<a href=\"" + http_text + "\"><b><i>HERE!</i></b></a>";
-            Helper.CheckHasHtmlData();
             Helper.CheckHtmlFragmentPart(html_format_link);
         }
 
@@ -64,69 +63,75 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void HtmlDataOnly_Then_NoAction()
-        {
-            string any_html = "any html data";
-
-            // Html形式のデータだけがある場合
-            Helper.SetHtml(any_html);
-
-            ClipboardConverterCollection.Execute();
-
-            // テキストは無しのまま
-            Helper.CheckHasNoTextData();
-
-            // Html形式データは変化しない
-            Helper.CheckHtml(any_html);
-        }
-
-        [TestMethod]
-        public void HtmlLinkToPostAndText_Then_ShortenHtmlLinkToPost()
+        public void HtmlLinkToPost_Then_ShortenHtmlLinkToPost()
         {
             // Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの期待値
-            string expect_html_fragment_of_link_to_post  =
+            string html_fragment_of_link_to_post  =
                 "<div itemprop=\"teams-copy-link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams-copy-link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
 
-            // 変換結果として期待する、短縮したHtmlデータ
-            string expect_html_fragment_output =
+            // 変換結果として期待する、短縮されたHtmlデータ
+            string shortened_html_fragment =
                 "<a href=\"URL\" title=\"TITLE\">POSTED_CONTENTS</a>";
 
             string any_text = "any text";
 
-            // 投稿へのリンクのHtml形式データと、何らかのテキストがある場合
-            Helper.SetHtmlFragmentPartAndSetText(expect_html_fragment_of_link_to_post, any_text);
+            // 投稿へのリンクのHtmlデータと、何らかのテキストがある場合
+            Helper.SetHtmlFragmentPartAndSetText(html_fragment_of_link_to_post, any_text);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
             Helper.CheckText(any_text);
 
-            // Html形式データが短縮したデータに置き換わる
-            Helper.CheckHtmlFragmentPart(expect_html_fragment_output);
+            // Htmlデータが短縮したデータに置き換わる
+            Helper.CheckHtmlFragmentPart(shortened_html_fragment);
         }
 
         [TestMethod]
-        public void OtherHtmlLinkAndText_Then_NoAction()
+        public void OtherHtml_Then_NoAction()
         {
-            // 投稿へのリンク以外のHtml形式データ(単純なリンク)
-            string html_fragment_of_other_link = "<a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a>";
+            // 投稿へのリンク以外のHtmlデータ(例えば、上記で短縮されたHtmlデータ)
+            string other_html_fragment = "<a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a>";
 
             string any_text = "any text";
 
-            // 投稿へのリンク以外のHtml形式データと、何らかのテキストがある場合
-            Helper.SetHtmlFragmentPartAndSetText(html_fragment_of_other_link, any_text);
+            // 投稿へのリンク以外のHtmlデータと、何らかのテキストがある場合
+            Helper.SetHtmlFragmentPartAndSetText(other_html_fragment, any_text);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
             Helper.CheckText(any_text);
 
-            // Html形式データは変化しない
-            Helper.CheckHtmlFragmentPart(html_fragment_of_other_link);
+            // Htmlデータは変化しない
+            Helper.CheckHtmlFragmentPart(other_html_fragment);
         }
 
-        // TODO:投稿へのリング以外のHTML形式データと、httpから始まるテキストがある場合、何もしないこと
-        // おそらく、現状コードだと、HERE! への変換が入ってしまうはず
+        [TestMethod]
+        public void HtmlLinkToPostAndTextStartWithHttp_Then_ShortenHtmlLinkToPost()
+        {
+            // Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの期待値
+            string html_fragment_of_link_to_post =
+                "<div itemprop=\"teams-copy-link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams-copy-link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
+
+            // 変換結果として期待する、短縮されたHtmlデータ
+            string shortened_html_fragment =
+                "<a href=\"URL\" title=\"TITLE\">POSTED_CONTENTS</a>";
+
+            // httpから始まるテキストがある場合
+            string http_text = "http.....";
+
+            // 投稿へのリンクのHtmlデータと、httpから始まるテキスト の両方がある場合
+            Helper.SetHtmlFragmentPartAndSetText(html_fragment_of_link_to_post, http_text);
+
+            ClipboardConverterCollection.Execute();
+
+            // テキストは変化しない
+            Helper.CheckText(http_text);
+
+            // Htmlデータが短縮したデータに置き換わる
+            Helper.CheckHtmlFragmentPart(shortened_html_fragment);
+        }
     }
 
     [TestClass]
