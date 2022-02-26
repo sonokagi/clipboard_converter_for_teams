@@ -175,8 +175,7 @@ namespace UnitTest
         public static void CheckText(string expect)
         {
             string actual = Clipboard.GetText(TextDataFormat.Text);
-            // TODO: Assert の actual と expect が逆になっているので入れ替え必要
-            Assert.AreEqual(actual, expect);
+            Assert.AreEqual(expect, actual);
         }
 
         // 指定のHtmlデータをクリップボードに設定する
@@ -190,7 +189,7 @@ namespace UnitTest
         {
             // Html形式データを取得時、最後に終端'\0'がつくようなので削除する
             string actual = Clipboard.GetText(TextDataFormat.Html).TrimEnd('\0');
-            Assert.AreEqual(actual, expect);
+            Assert.AreEqual(expect, actual);
         }
 
         // 指定のHtmlデータをフォーマット変換してクリップボードに設定し、かつ、指定のTextデータをクリップボードに設定する
@@ -207,7 +206,7 @@ namespace UnitTest
         {
             string raw_data = Clipboard.GetText(TextDataFormat.Html);
             string actual = extractFragmentPart(raw_data);
-            Assert.AreEqual(actual, expect);
+            Assert.AreEqual(expect, actual);
         }
 
         static string extractFragmentPart(string html)
@@ -235,21 +234,21 @@ namespace UnitTest
 
         public static void CheckHasTextData()
         {
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), true);
+            Assert.AreEqual(true, Clipboard.ContainsData(DataFormats.Text));
         }
 
         public static void CheckHasNoTextData()
         {
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Text), false);
+            Assert.AreEqual(false, Clipboard.ContainsData(DataFormats.Text));
         }
         public static void CheckHasHtmlData()
         {
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Html), true);
+            Assert.AreEqual(true, Clipboard.ContainsData(DataFormats.Html));
         }
 
         public static void CheckHasNoHtmlData()
         {
-            Assert.AreEqual(Clipboard.ContainsData(DataFormats.Html), false);
+            Assert.AreEqual(false, Clipboard.ContainsData(DataFormats.Html));
         }
     }
 }
