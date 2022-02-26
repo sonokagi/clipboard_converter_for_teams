@@ -81,11 +81,11 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void HtmlAndText_Then_ShortenHtmlLinkToPost()
+        public void HtmlLinkToPostAndText_Then_ShortenHtmlLinkToPost()
         {
             // Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの期待値
             string expect_html_fragment_of_link_to_post  =
-                "<div itemprop=\"teams - copy - link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams - copy - link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
+                "<div itemprop=\"teams-copy-link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams-copy-link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
 
             // 変換結果として期待する、短縮したHtmlデータ
             string expect_html_fragment_output =
@@ -93,7 +93,7 @@ namespace UnitTest
 
             string any_text = "any text";
 
-            // Html形式データとテキストの両方がある場合
+            // 投稿へのリンクのHtml形式データと、何らかのテキストがある場合
             Helper.SetHtmlFragmentPartAndSetText(expect_html_fragment_of_link_to_post, any_text);
 
             ClipboardConverterCollection.Execute();
@@ -104,6 +104,29 @@ namespace UnitTest
             // Html形式データが短縮したデータに置き換わる
             Helper.CheckHtmlFragmentPart(expect_html_fragment_output);
         }
+
+        [TestMethod]
+        public void OtherHtmlLinkAndText_Then_NoAction()
+        {
+            // 投稿へのリンク以外のHtml形式データ(単純なリンク)
+            string html_fragment_of_other_link = "<a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a>";
+
+            string any_text = "any text";
+
+            // 投稿へのリンク以外のHtml形式データと、何らかのテキストがある場合
+            Helper.SetHtmlFragmentPartAndSetText(html_fragment_of_other_link, any_text);
+
+            ClipboardConverterCollection.Execute();
+
+            // テキストは変化しない
+            Helper.CheckText(any_text);
+
+            // Html形式データは変化しない
+            Helper.CheckHtmlFragmentPart(html_fragment_of_other_link);
+        }
+
+        // TODO:投稿へのリング以外のHTML形式データと、httpから始まるテキストがある場合、何もしないこと
+        // おそらく、現状コードだと、HERE! への変換が入ってしまうはず
     }
 
     [TestClass]
@@ -152,6 +175,7 @@ namespace UnitTest
         public static void CheckText(string expect)
         {
             string actual = Clipboard.GetText(TextDataFormat.Text);
+            // TODO: Assert の actual と expect が逆になっているので入れ替え必要
             Assert.AreEqual(actual, expect);
         }
 

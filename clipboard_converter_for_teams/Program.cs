@@ -53,8 +53,41 @@ namespace clipboard_converter_for_teams
 
         static bool link_to_post_is_stored_in_clipboard()
         {
-            // クリップボードにHTMLとTEXT形式のデータが両方存在したら、投稿へのリンクが格納されていると見なす
-            return Clipboard.ContainsText(TextDataFormat.Html) && Clipboard.ContainsText(TextDataFormat.Text);
+            // クリップボードにHTMLとTEXT形式のデータが両方存在し、
+            // HTML形式データのFragment部分に"teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
+
+            // TEXT形式 もしくは HTML形式のデータがなければ抜ける
+            if (!Clipboard.ContainsText(TextDataFormat.Text)) return false;
+            if (!Clipboard.ContainsText(TextDataFormat.Html)) return false;
+
+            // HTML形式データのFragment部分を抜き出す(異常時は抜ける)
+            string html = Clipboard.GetText(TextDataFormat.Html);
+            string fragment_part = extractFragmentPart(html);
+            if ( String.IsNullOrEmpty(fragment_part) ) return false;
+
+            // "teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
+            return fragment_part.Contains("teams-copy-link");
+        }
+
+        static string extractFragmentPart(string html)
+        {
+            string start_keyword = "<!--StartFragment-->";  // 開始キーワード
+            string end_keyword = "<!--EndFragment-->";      // 終了キーワード
+            int start_index = html.IndexOf(start_keyword);  // 開始キーワードの検出位置
+            int end_index = html.IndexOf(end_keyword);      // 終了キーワードの検出位置
+
+            // 正常にキーワードが見つかった場合、各インデックスは0より大きくなるはず
+            if (start_index > 0 && end_index > 0)
+            {
+                int start = start_index + start_keyword.Length;
+                int length = end_index - start;
+                return html.Substring(start, length);
+            }
+            // 異常時は空文字列を返す
+            else
+            {
+                return String.Empty;
+            }
         }
 
         static void convert_link_to_post()
