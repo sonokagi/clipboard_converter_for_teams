@@ -8,6 +8,25 @@ namespace UnitTest
     [TestClass]
     public class ClipboardConverterCollectionTest
     {
+        // httpから始まるテキスト
+        static string text_start_with_http_ = "http.....";
+        
+        // 変換結果として期待する、上記URLへのリンクのHtmlデータ
+        static string expect_html_link_to_url_ = "<a href=\"" + text_start_with_http_ + "\"><b><i>HERE!</i></b></a>";
+
+        // http以外で始まるテキスト
+        static string other_text_ = "other.....";
+
+
+        // 投稿へのリンクのHtmlデータ(Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの想定値)
+        static string html_link_to_post_ = "<div itemprop=\"teams-copy-link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams-copy-link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
+        
+        // 変換結果として期待する、上記を短縮したHtmlデータ
+        static string expect_shortened_html_ =  "<a href=\"URL\" title=\"TITLE\">POSTED_CONTENTS</a>";
+
+        // 投稿へのリンク以外のHtmlデータ(例えば、単純なリンク)
+        static string other_html_= "<a href=\"URL\">CONTENTS</a>";
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -22,7 +41,7 @@ namespace UnitTest
 
             ClipboardConverterCollection.Execute();
 
-            // テキストもHtml形式データも無しのまま
+            // テキストもHtmlデータも無しのまま
             Helper.CheckHasNoTextData();
             Helper.CheckHasNoHtmlData();
         }
@@ -30,33 +49,28 @@ namespace UnitTest
         [TestMethod]
         public void TextStartWithHttp_Then_CreateHtmlFormatLink()
         {
-            string http_text = "http.....";
-
             // httpから始まるテキストがある場合
-            Helper.SetText(http_text);
+            Helper.SetText(text_start_with_http_);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
-            Helper.CheckText(http_text);
+            Helper.CheckText(text_start_with_http_);
 
             // Htmlデータにリンクが格納される
-            string html_format_link = "<a href=\"" + http_text + "\"><b><i>HERE!</i></b></a>";
-            Helper.CheckHtmlFragmentPart(html_format_link);
+            Helper.CheckHtmlFragmentPart(expect_html_link_to_url_);
         }
 
         [TestMethod]
         public void OtherText_Then_NoAction()
         {
-            string other_text = "other.....";
-
             // http以外で始まるテキストがある場合
-            Helper.SetText(other_text);
+            Helper.SetText(other_text_);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
-            Helper.CheckText(other_text);
+            Helper.CheckText(other_text_);
 
             // Html形式データは無しのまま
             Helper.CheckHasNoHtmlData();
@@ -65,72 +79,44 @@ namespace UnitTest
         [TestMethod]
         public void HtmlLinkToPost_Then_ShortenHtmlLinkToPost()
         {
-            // Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの期待値
-            string html_fragment_of_link_to_post  =
-                "<div itemprop=\"teams-copy-link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams-copy-link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
-
-            // 変換結果として期待する、短縮されたHtmlデータ
-            string shortened_html_fragment =
-                "<a href=\"URL\" title=\"TITLE\">POSTED_CONTENTS</a>";
-
-            string any_text = "any text";
-
-            // 投稿へのリンクのHtmlデータと、何らかのテキストがある場合
-            Helper.SetHtmlFragmentPartAndSetText(html_fragment_of_link_to_post, any_text);
+            // 投稿へのリンクのHtmlデータと、http以外で始まるテキストがある場合
+            Helper.SetHtmlFragmentPartAndSetText(html_link_to_post_, other_text_);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
-            Helper.CheckText(any_text);
+            Helper.CheckText(other_text_);
 
             // Htmlデータが短縮したデータに置き換わる
-            Helper.CheckHtmlFragmentPart(shortened_html_fragment);
+            Helper.CheckHtmlFragmentPart(expect_shortened_html_);
         }
 
         [TestMethod]
         public void OtherHtml_Then_NoAction()
         {
-            // 投稿へのリンク以外のHtmlデータ(例えば、上記で短縮されたHtmlデータ)
-            string other_html_fragment = "<a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a>";
-
-            string any_text = "any text";
-
-            // 投稿へのリンク以外のHtmlデータと、何らかのテキストがある場合
-            Helper.SetHtmlFragmentPartAndSetText(other_html_fragment, any_text);
+            // 投稿へのリンク以外のHtmlデータと、http以外で始まるテキストがある場合
+            Helper.SetHtmlFragmentPartAndSetText(other_html_, other_text_);
 
             ClipboardConverterCollection.Execute();
 
-            // テキストは変化しない
-            Helper.CheckText(any_text);
-
-            // Htmlデータは変化しない
-            Helper.CheckHtmlFragmentPart(other_html_fragment);
+            // テキストもHtmlデータも変化しない
+            Helper.CheckText(other_text_);
+            Helper.CheckHtmlFragmentPart(other_html_);
         }
 
         [TestMethod]
         public void HtmlLinkToPostAndTextStartWithHttp_Then_ShortenHtmlLinkToPost()
         {
-            // Teamsで、投稿へのリンクをコピーした際、クリップボードに格納されるHtmlデータの期待値
-            string html_fragment_of_link_to_post =
-                "<div itemprop=\"teams-copy-link\"><a href=\"URL\" title=\"TITLE\">POSTER: POSTED_CONTENTS</a></div><div itemprop=\"teams-copy-link\">POST_TEAM_CHANNEL_DATE_TIME</div><div>&nbsp;</div>";
-
-            // 変換結果として期待する、短縮されたHtmlデータ
-            string shortened_html_fragment =
-                "<a href=\"URL\" title=\"TITLE\">POSTED_CONTENTS</a>";
-
-            // httpから始まるテキストがある場合
-            string http_text = "http.....";
-
             // 投稿へのリンクのHtmlデータと、httpから始まるテキスト の両方がある場合
-            Helper.SetHtmlFragmentPartAndSetText(html_fragment_of_link_to_post, http_text);
+            Helper.SetHtmlFragmentPartAndSetText(html_link_to_post_, text_start_with_http_);
 
             ClipboardConverterCollection.Execute();
 
             // テキストは変化しない
-            Helper.CheckText(http_text);
+            Helper.CheckText(text_start_with_http_);
 
             // Htmlデータが短縮したデータに置き換わる
-            Helper.CheckHtmlFragmentPart(shortened_html_fragment);
+            Helper.CheckHtmlFragmentPart(expect_shortened_html_);
         }
     }
 
@@ -183,20 +169,6 @@ namespace UnitTest
             Assert.AreEqual(expect, actual);
         }
 
-        // 指定のHtmlデータをクリップボードに設定する
-        public static void SetHtml(string expect)
-        {
-            Clipboard.SetText(expect, TextDataFormat.Html);
-        }
-
-        // Htmlデータが期待通りかチェックする
-        public static void CheckHtml(string expect)
-        {
-            // Html形式データを取得時、最後に終端'\0'がつくようなので削除する
-            string actual = Clipboard.GetText(TextDataFormat.Html).TrimEnd('\0');
-            Assert.AreEqual(expect, actual);
-        }
-
         // 指定のHtmlデータをフォーマット変換してクリップボードに設定し、かつ、指定のTextデータをクリップボードに設定する
         // - Html形式データをクリップボードに格納する場合、下記URLのような変換が必要
         //   https://docs.microsoft.com/ja-jp/windows/win32/dataxchg/html-clipboard-format
@@ -245,10 +217,6 @@ namespace UnitTest
         public static void CheckHasNoTextData()
         {
             Assert.AreEqual(false, Clipboard.ContainsData(DataFormats.Text));
-        }
-        public static void CheckHasHtmlData()
-        {
-            Assert.AreEqual(true, Clipboard.ContainsData(DataFormats.Html));
         }
 
         public static void CheckHasNoHtmlData()
