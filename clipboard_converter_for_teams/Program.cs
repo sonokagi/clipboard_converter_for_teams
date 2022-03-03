@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace clipboard_converter_for_teams
 {
@@ -57,37 +52,15 @@ namespace clipboard_converter_for_teams
             // HTML形式データのFragment部分に"teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
 
             // TEXT形式 もしくは HTML形式のデータがなければ抜ける
-            if (!Clipboard.ContainsText(TextDataFormat.Text)) return false;
-            if (!Clipboard.ContainsText(TextDataFormat.Html)) return false;
+            if (!ClipboardWrapper.ContainsText()) return false;
+            if (!ClipboardWrapper.ContainsHtml()) return false;
 
             // HTML形式データのFragment部分を抜き出す(異常時は抜ける)
-            string html = Clipboard.GetText(TextDataFormat.Html);
-            string fragment_part = extractFragmentPart(html);
+            string fragment_part = ClipboardWrapper.GetHtmlFragmentPart();
             if ( String.IsNullOrEmpty(fragment_part) ) return false;
 
             // "teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
             return fragment_part.Contains("teams-copy-link");
-        }
-
-        static string extractFragmentPart(string html)
-        {
-            string start_keyword = "<!--StartFragment-->";  // 開始キーワード
-            string end_keyword = "<!--EndFragment-->";      // 終了キーワード
-            int start_index = html.IndexOf(start_keyword);  // 開始キーワードの検出位置
-            int end_index = html.IndexOf(end_keyword);      // 終了キーワードの検出位置
-
-            // 正常にキーワードが見つかった場合、各インデックスは0より大きくなるはず
-            if (start_index > 0 && end_index > 0)
-            {
-                int start = start_index + start_keyword.Length;
-                int length = end_index - start;
-                return html.Substring(start, length);
-            }
-            // 異常時は空文字列を返す
-            else
-            {
-                return String.Empty;
-            }
         }
 
         static void convert_link_to_post()
@@ -111,8 +84,8 @@ namespace clipboard_converter_for_teams
             //-----------------------------------------
 
             // クリップボードからデータをHTML/TEXT形式で取得
-            string html = Clipboard.GetText(TextDataFormat.Html);
-            string text = Clipboard.GetText(TextDataFormat.Text);
+            string html = ClipboardWrapper.GetHtmlFragmentPart();
+            string text = ClipboardWrapper.GetText();
             Console.WriteLine("--- [before] clipboard data ---");
             Console.WriteLine(html);
 
@@ -126,7 +99,7 @@ namespace clipboard_converter_for_teams
 
             // クリップボードに「投稿へのリンク部分」をHtml形式で設定
             // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
-            ClipboardHelper.CopyToClipboard(link, text);
+            ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
         }
 
         static string extract_link_part(string html)
@@ -176,10 +149,10 @@ namespace clipboard_converter_for_teams
         static bool url_text_is_stored_in_clipboard()
         {
             // クリップボードにTEXT形式データがあり
-            if (Clipboard.ContainsText(TextDataFormat.Text))
+            if (ClipboardWrapper.ContainsText())
             {
                 // そのデータが「http」から始まっていたら、URLと判断する
-                if (Clipboard.GetText(TextDataFormat.Text).StartsWith("http")) return true;
+                if (ClipboardWrapper.GetText().StartsWith("http")) return true;
             }
 
             return false;
@@ -191,7 +164,7 @@ namespace clipboard_converter_for_teams
             // これをHTMLタグのリンクに変換し、Html形式でクリップボードに上書きする
 
             // クリップボードからデータをTEXT形式で取得
-            string text = Clipboard.GetText(TextDataFormat.Text);
+            string text = ClipboardWrapper.GetText();
             Console.WriteLine("--- [before] clipboard data ---");
             Console.WriteLine(text);
 
@@ -202,7 +175,7 @@ namespace clipboard_converter_for_teams
 
             // クリップボードに「URLへのリンク」をHtml形式で設定
             // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
-            ClipboardHelper.CopyToClipboard(link, text);
+            ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
         }
     }
 }
