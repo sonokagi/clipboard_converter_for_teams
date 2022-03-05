@@ -6,6 +6,11 @@ namespace clipboard_converter_for_teams
     // クリップボード操作のラッパー
     public static class ClipboardWrapper
     {
+        public static void Clear()
+        {
+            Clipboard.Clear();
+        }
+
         public static string GetText()
         {
             return Clipboard.GetText(TextDataFormat.Text);
@@ -31,6 +36,15 @@ namespace clipboard_converter_for_teams
             return Clipboard.ContainsText(TextDataFormat.Html);
         }
 
+        public static void SetText(string text)
+        {
+            Clipboard.SetText(text, TextDataFormat.Text);
+        }
+
+        // 指定のHtmlデータをフォーマット変換してクリップボードに設定し、かつ、指定のTextデータをクリップボードに設定する
+        // - Html形式データをクリップボードに格納する場合、下記URLのような変換が必要
+        //   https://docs.microsoft.com/ja-jp/windows/win32/dataxchg/html-clipboard-format
+        // - Htmlとテキストを設定する場合、両方を同時に設定する必要があり、処理を分割できない
         public static void SetHtmlFragmentPartAndText(string html_fragment_part, string text)
         {
             ClipboardHelper.CopyToClipboard(html_fragment_part, text);

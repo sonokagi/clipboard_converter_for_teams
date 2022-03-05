@@ -55,11 +55,9 @@ namespace clipboard_converter_for_teams
             if (!ClipboardWrapper.ContainsText()) return false;
             if (!ClipboardWrapper.ContainsHtml()) return false;
 
-            // HTML形式データのFragment部分を抜き出す(異常時は抜ける)
-            string fragment_part = ClipboardWrapper.GetHtmlFragmentPart();
-            if ( String.IsNullOrEmpty(fragment_part) ) return false;
-
+            // HTML形式データのFragment部分を抜き出し
             // "teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
+            string fragment_part = ClipboardWrapper.GetHtmlFragmentPart();
             return fragment_part.Contains("teams-copy-link");
         }
 
