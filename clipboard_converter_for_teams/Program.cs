@@ -30,14 +30,14 @@ namespace clipboard_converter_for_teams
         public static void Execute()
         {
             // 「投稿へのリンク」を変換する
-            if (link_to_post_is_stored_in_clipboard())
+            if (LinkToPostConverter.CanExecute())
             {
-                convert_link_to_post();
+                LinkToPostConverter.Execute();
             }
             // 「テキストのURL」を変換する
-            else if (url_text_is_stored_in_clipboard())
+            else if (UrlTextConverter.CanExecute())
             {
-                convert_url_text();
+                UrlTextConverter.Execute();
             }
             // その他
             else
@@ -45,8 +45,11 @@ namespace clipboard_converter_for_teams
                 // 処理無し
             }
         }
+    }
 
-        static bool link_to_post_is_stored_in_clipboard()
+    public static class LinkToPostConverter
+    {
+        public static bool CanExecute()
         {
             // クリップボードにHTMLとTEXT形式のデータが両方存在し、
             // HTML形式データのFragment部分に"teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
@@ -61,7 +64,7 @@ namespace clipboard_converter_for_teams
             return fragment_part.Contains("teams-copy-link");
         }
 
-        static void convert_link_to_post()
+        public static void Execute()
         {
             // Teamsのチャットで「リンクをコピー」を行うと、クリップボードにHtml形式で下記のようなデータが格納される
             // ここから必要なデータ(★で示した部分)を抜き出し、さらに「投稿者名: 」を削除してから、再度Html形式でクリップボードに上書きする
@@ -88,7 +91,7 @@ namespace clipboard_converter_for_teams
             Console.WriteLine(html);
 
             // 「投稿へのリンク部分」を抽出後に投稿者名を削除。異常時は抜ける
-            string link = remove_name_of_poster(extract_link_part(html));
+            string link = removeNameOfPoster(extractLinkPart(html));
             if (string.IsNullOrEmpty(link)) return;
 
             // 変換結果を表示
@@ -100,7 +103,7 @@ namespace clipboard_converter_for_teams
             ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
         }
 
-        static string extract_link_part(string html)
+        private static string extractLinkPart(string html)
         {
             // Htmlデータから投稿へのリンク部分「<a href=」～「</a>」の文字列を探す
             string start_keyword = "<a href=";              // 開始キーワード
@@ -121,7 +124,7 @@ namespace clipboard_converter_for_teams
             }
         }
 
-        static string remove_name_of_poster(string link)
+        private static string removeNameOfPoster(string link)
         {
             // 入力データは <a href="～">投稿者名: ～</a> を前提とする
             // このため「">」投稿者名「: 」の文字列を探す
@@ -143,8 +146,11 @@ namespace clipboard_converter_for_teams
                 return string.Empty;
             }
         }
+    }
 
-        static bool url_text_is_stored_in_clipboard()
+    public static class UrlTextConverter
+    {
+        public static bool CanExecute()
         {
             // クリップボードにTEXT形式データがあり
             if (ClipboardWrapper.ContainsText())
@@ -156,7 +162,7 @@ namespace clipboard_converter_for_teams
             return false;
         }
 
-        static void convert_url_text()
+        public static void Execute()
         {
             // Teams上のファイルやフォルダで「リンクをコピー」すると、クリップボードにText形式でSharePointのURLが格納される
             // これをHTMLタグのリンクに変換し、Html形式でクリップボードに上書きする
