@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using clipboard_converter_for_teams;
+using System.IO;
 
 namespace UnitTest
 {
@@ -108,6 +109,76 @@ namespace UnitTest
             // テキストは変化しない、Htmlデータが短縮したデータに置き換わる
             Check.Text(text_start_with_http_);
             Check.HtmlFragmentPart(expect_shortened_html_);
+        }
+
+        [TestMethod]
+        public void Empty_Then_OutputNothing()
+        {
+            using (var output = new StringWriter())
+            {
+                var stdout = Console.Out;
+                Console.SetOut(output);
+
+                // クリップボードが空の場合
+                ClipboardWrapper.Clear();
+
+                ClipboardConverterCollection.Execute();
+
+                // コンソールには何も出力されない
+                Assert.AreEqual(String.Empty, output.ToString());
+
+                Console.SetOut(stdout);
+            }
+        }
+
+        [TestMethod]
+        public void HtmlLinkToPost_Then_OutputCoversionResult()
+        {
+            using (var output = new StringWriter())
+            {
+                var stdout = Console.Out;
+                Console.SetOut(output);
+
+                // 投稿へのリンクのHtmlデータと、http以外で始まるテキストがある場合
+                ClipboardWrapper.SetHtmlFragmentPartAndText(html_link_to_post_, other_text_);
+
+                ClipboardConverterCollection.Execute();
+
+                // コンソールには変換結果を出力
+                string expected =
+                      "--- [before] clipboard data ---\r\n"
+                    + html_link_to_post_ + "\r\n"
+                    + "--- [after] link to post ---\r\n"
+                    + expect_shortened_html_ + "\r\n";
+                Assert.AreEqual(expected, output.ToString());
+
+                Console.SetOut(stdout);
+            }
+        }
+
+        [TestMethod]
+        public void TextStartWithHttp_Then_OutputCoversionResult()
+        {
+            using (var output = new StringWriter())
+            {
+                var stdout = Console.Out;
+                Console.SetOut(output);
+
+                // httpから始まるテキストがある場合
+                ClipboardWrapper.SetText(text_start_with_http_);
+
+                ClipboardConverterCollection.Execute();
+
+                // コンソールには変換結果を出力
+                string expected =
+                      "--- [before] clipboard data ---\r\n"
+                    + text_start_with_http_ + "\r\n"
+                    + "--- [after] link to url ---\r\n"
+                    + expect_html_link_to_url_ + "\r\n";
+                Assert.AreEqual(expected, output.ToString());
+
+                Console.SetOut(stdout);
+            }
         }
     }
 

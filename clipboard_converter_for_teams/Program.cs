@@ -46,6 +46,10 @@ namespace clipboard_converter_for_teams
         }
     }
 
+    // TODO:print出力で重複コードがあるので、ここを削除したい。abstractクラス側で関数定義すれば良さそう。
+    // 但し、この修正をするなら、まずコンソール出力のテストを作りたい
+    // TODO:CanExecuteは削除して、Execute だけを呼び出したい。返り値で実施・未実施を判断する
+
     public abstract class ClipboardConverter
     {
         public abstract bool CanExecute();
