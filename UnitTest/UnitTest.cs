@@ -125,7 +125,7 @@ namespace UnitTest
                 ClipboardConverterCollection.Execute();
 
                 // コンソールには何も出力されない
-                Assert.AreEqual(String.Empty, output.ToString());
+                Check.ConsoleNoOutput(output.ToString());
 
                 Console.SetOut(stdout);
             }
@@ -144,13 +144,8 @@ namespace UnitTest
 
                 ClipboardConverterCollection.Execute();
 
-                // コンソールには変換結果を出力
-                string expected =
-                      "--- [before] ---\r\n"
-                    + html_link_to_post_ + "\r\n"
-                    + "--- [after] ---\r\n"
-                    + expect_shortened_html_ + "\r\n";
-                Assert.AreEqual(expected, output.ToString());
+                // コンソールに変換結果を出力
+                Check.ConsoleOut(html_link_to_post_, expect_shortened_html_, output.ToString());
 
                 Console.SetOut(stdout);
             }
@@ -169,13 +164,8 @@ namespace UnitTest
 
                 ClipboardConverterCollection.Execute();
 
-                // コンソールには変換結果を出力
-                string expected =
-                      "--- [before] ---\r\n"
-                    + text_start_with_http_ + "\r\n"
-                    + "--- [after] ---\r\n"
-                    + expect_html_link_to_url_ + "\r\n";
-                Assert.AreEqual(expected, output.ToString());
+                // コンソールに変換結果を出力
+                Check.ConsoleOut(text_start_with_http_, expect_html_link_to_url_, output.ToString());
 
                 Console.SetOut(stdout);
             }
@@ -245,5 +235,21 @@ namespace UnitTest
         {
             Assert.AreEqual(false, ClipboardWrapper.ContainsHtml());
         }
+
+        public static void ConsoleOut(string before, string after, string actual_console_out )
+        {
+            string expect_console_out =
+                "--- [before] ---\r\n"
+                + before + "\r\n"
+                + "--- [after] ---\r\n"
+                + after + "\r\n";
+            Assert.AreEqual(expect_console_out, actual_console_out);
+        }
+
+        public static void ConsoleNoOutput(string actual_console_out)
+        {
+            Assert.AreEqual(String.Empty, actual_console_out);
+        }
+
     }
 }
