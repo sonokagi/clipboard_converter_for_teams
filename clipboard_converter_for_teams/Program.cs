@@ -96,7 +96,7 @@ namespace clipboard_converter_for_teams
             // クリップボードからデータをHTML/TEXT形式で取得
             string html = ClipboardWrapper.GetHtmlFragmentPart();
             string text = ClipboardWrapper.GetText();
-            Console.WriteLine("--- [before] clipboard data ---");
+            Console.WriteLine("--- [before] ---");
             Console.WriteLine(html);
 
             // 「投稿へのリンク部分」を抽出後に投稿者名を削除。異常時は抜ける
@@ -104,7 +104,7 @@ namespace clipboard_converter_for_teams
             if (string.IsNullOrEmpty(link)) return;
 
             // 変換結果を表示
-            Console.WriteLine("--- [after] link to post ---");
+            Console.WriteLine("--- [after] ---");
             Console.WriteLine(link);
 
             // クリップボードに「投稿へのリンク部分」をHtml形式で設定
@@ -178,12 +178,12 @@ namespace clipboard_converter_for_teams
 
             // クリップボードからデータをTEXT形式で取得
             string text = ClipboardWrapper.GetText();
-            Console.WriteLine("--- [before] clipboard data ---");
+            Console.WriteLine("--- [before] ---");
             Console.WriteLine(text);
 
             // HTMLタグで「URLへのリンク」を作る。文字列は固定
             string link = "<a href=\"" + text + "\"><b><i>HERE!</i></b></a>";
-            Console.WriteLine("--- [after] link to url ---");
+            Console.WriteLine("--- [after] ---");
             Console.WriteLine(link);
 
             // クリップボードに「URLへのリンク」をHtml形式で設定

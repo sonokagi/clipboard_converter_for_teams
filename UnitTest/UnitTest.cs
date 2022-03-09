@@ -146,9 +146,9 @@ namespace UnitTest
 
                 // コンソールには変換結果を出力
                 string expected =
-                      "--- [before] clipboard data ---\r\n"
+                      "--- [before] ---\r\n"
                     + html_link_to_post_ + "\r\n"
-                    + "--- [after] link to post ---\r\n"
+                    + "--- [after] ---\r\n"
                     + expect_shortened_html_ + "\r\n";
                 Assert.AreEqual(expected, output.ToString());
 
@@ -171,9 +171,9 @@ namespace UnitTest
 
                 // コンソールには変換結果を出力
                 string expected =
-                      "--- [before] clipboard data ---\r\n"
+                      "--- [before] ---\r\n"
                     + text_start_with_http_ + "\r\n"
-                    + "--- [after] link to url ---\r\n"
+                    + "--- [after] ---\r\n"
                     + expect_html_link_to_url_ + "\r\n";
                 Assert.AreEqual(expected, output.ToString());
 
