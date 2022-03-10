@@ -46,14 +46,20 @@ namespace clipboard_converter_for_teams
         }
     }
 
-    // TODO:print出力で重複コードがあるので、ここを削除したい。abstractクラス側で関数定義すれば良さそう。
-    // 但し、この修正をするなら、まずコンソール出力のテストを作りたい
     // TODO:CanExecuteは削除して、Execute だけを呼び出したい。返り値で実施・未実施を判断する
 
     public abstract class ClipboardConverter
     {
         public abstract bool CanExecute();
         public abstract void Execute();
+
+        protected void outputResult(string before, string after)
+        {
+            Console.WriteLine("--- [before] ---");
+            Console.WriteLine(before);
+            Console.WriteLine("--- [after] ---");
+            Console.WriteLine(after);
+        }
     }
 
     public class LinkToPostConverter : ClipboardConverter
@@ -96,20 +102,17 @@ namespace clipboard_converter_for_teams
             // クリップボードからデータをHTML/TEXT形式で取得
             string html = ClipboardWrapper.GetHtmlFragmentPart();
             string text = ClipboardWrapper.GetText();
-            Console.WriteLine("--- [before] ---");
-            Console.WriteLine(html);
 
             // 「投稿へのリンク部分」を抽出後に投稿者名を削除。異常時は抜ける
             string link = removeNameOfPoster(extractLinkPart(html));
             if (string.IsNullOrEmpty(link)) return;
 
-            // 変換結果を表示
-            Console.WriteLine("--- [after] ---");
-            Console.WriteLine(link);
-
             // クリップボードに「投稿へのリンク部分」をHtml形式で設定
             // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
             ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
+
+            // 変換結果を出力
+            outputResult(html, link);
         }
 
         private string extractLinkPart(string html)
@@ -178,17 +181,16 @@ namespace clipboard_converter_for_teams
 
             // クリップボードからデータをTEXT形式で取得
             string text = ClipboardWrapper.GetText();
-            Console.WriteLine("--- [before] ---");
-            Console.WriteLine(text);
 
             // HTMLタグで「URLへのリンク」を作る。文字列は固定
             string link = "<a href=\"" + text + "\"><b><i>HERE!</i></b></a>";
-            Console.WriteLine("--- [after] ---");
-            Console.WriteLine(link);
 
             // クリップボードに「URLへのリンク」をHtml形式で設定
             // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
             ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
+
+            // 変換結果を出力
+            outputResult(text, link);
         }
     }
 }
