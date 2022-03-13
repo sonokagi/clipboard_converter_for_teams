@@ -37,22 +37,15 @@ namespace clipboard_converter_for_teams
 
             foreach (ClipboardConverter c in converters)
             {
-                if (c.CanExecute())
-                {
-                    c.Execute();
-                    return;
-                }
+                if (c.Execute() == ClipboardConverter.Result.SUCCESS) return;
             }
         }
     }
 
-    // TODO:CanExecuteは削除して、Execute だけを呼び出したい。返り値で実施・未実施を判断する
-
     public abstract class ClipboardConverter
     {
-        public abstract bool CanExecute();
-        public abstract void Execute();
-
+        public enum Result { SUCCESS, SKIP };
+        public abstract Result Execute();
         protected void outputResult(string before, string after)
         {
             Console.WriteLine("--- [before] ---");
@@ -64,7 +57,48 @@ namespace clipboard_converter_for_teams
 
     public class LinkToPostConverter : ClipboardConverter
     {
-        public override bool CanExecute()
+        // Teamsのチャットで「リンクをコピー」を行うと、クリップボードにHtml形式で下記のようなデータが格納される
+        // ここから必要なデータ(★で示した部分)を抜き出し、さらに「投稿者名: 」を削除して、クリップボードに上書きする
+        //-----------------------------------------
+        //Version:0.9
+        //StartHTML:000000xxxx
+        //EndHTML:000000xxxx
+        //StartFragment:000000xxxx
+        //EndFragment:000000xxxx
+        //<html>
+        //<body>
+        //<!--StartFragment--><div itemprop="teams-copy-link">
+        //★ここから★<a href="https://teams.microsoft.com/l/・・・" title="・・・">投稿者名: 投稿内容</a>★ここまで★
+        //</div><div itemprop="teams-copy-link">Team名 / チャンネル名 で 2022年x月x日 xx:xx:xx に投稿しました</div><div>&nbsp;</div>
+        //<!--EndFragment-->
+        //</body>
+        //</html>
+        //-----------------------------------------
+
+        public override Result Execute()
+        {
+            // 変換可否の事前チェック
+            if (!canExecute()) return Result.SKIP;
+
+            // クリップボードからデータをHTML/TEXT形式で取得
+            string html = ClipboardWrapper.GetHtmlFragmentPart();
+            string text = ClipboardWrapper.GetText();
+
+            // 「投稿へのリンク部分」を抽出後に投稿者名を削除。異常時は抜ける
+            string link = removeNameOfPoster(extractLinkPart(html));
+            if (string.IsNullOrEmpty(link)) return Result.SKIP;
+
+            // クリップボードに「投稿へのリンク部分」をHtml形式で設定
+            // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
+            ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
+
+            // 変換結果を出力
+            outputResult(html, link);
+
+            return Result.SUCCESS;
+        }
+
+        private bool canExecute()
         {
             // クリップボードにHTMLとTEXT形式のデータが両方存在し、
             // HTML形式データのFragment部分に"teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
@@ -77,42 +111,6 @@ namespace clipboard_converter_for_teams
             // "teams-copy-link"の文字列があれば、投稿へのリンクが格納されていると判断
             string fragment_part = ClipboardWrapper.GetHtmlFragmentPart();
             return fragment_part.Contains("teams-copy-link");
-        }
-
-        public override void Execute()
-        {
-            // Teamsのチャットで「リンクをコピー」を行うと、クリップボードにHtml形式で下記のようなデータが格納される
-            // ここから必要なデータ(★で示した部分)を抜き出し、さらに「投稿者名: 」を削除してから、再度Html形式でクリップボードに上書きする
-            //-----------------------------------------
-            //Version:0.9
-            //StartHTML:000000xxxx
-            //EndHTML:000000xxxx
-            //StartFragment:000000xxxx
-            //EndFragment:000000xxxx
-            //<html>
-            //<body>
-            //<!--StartFragment--><div itemprop="teams-copy-link">
-            //★ここから★<a href="https://teams.microsoft.com/l/・・・" title="・・・">投稿者名: 投稿内容</a>★ここまで★
-            //</div><div itemprop="teams-copy-link">Team名 / チャンネル名 で 2022年x月x日 xx:xx:xx に投稿しました</div><div>&nbsp;</div>
-            //<!--EndFragment-->
-            //</body>
-            //</html>
-            //-----------------------------------------
-
-            // クリップボードからデータをHTML/TEXT形式で取得
-            string html = ClipboardWrapper.GetHtmlFragmentPart();
-            string text = ClipboardWrapper.GetText();
-
-            // 「投稿へのリンク部分」を抽出後に投稿者名を削除。異常時は抜ける
-            string link = removeNameOfPoster(extractLinkPart(html));
-            if (string.IsNullOrEmpty(link)) return;
-
-            // クリップボードに「投稿へのリンク部分」をHtml形式で設定
-            // 必須ではないが、テキスト形式で元のクリップボードと同一データも設定しておく
-            ClipboardWrapper.SetHtmlFragmentPartAndText(link, text);
-
-            // 変換結果を出力
-            outputResult(html, link);
         }
 
         private string extractLinkPart(string html)
@@ -162,22 +160,13 @@ namespace clipboard_converter_for_teams
 
     public class UrlTextConverter : ClipboardConverter
     {
-        public override bool CanExecute()
-        {
-            // クリップボードにTEXT形式データがあり
-            if (ClipboardWrapper.ContainsText())
-            {
-                // そのデータが「http」から始まっていたら、URLと判断する
-                if (ClipboardWrapper.GetText().StartsWith("http")) return true;
-            }
+        // Teams上のファイルやフォルダで「リンクをコピー」すると、クリップボードにText形式でSharePointのURLが格納される
+        // これをHTMLタグのリンクに変換し、Html形式でクリップボードに上書きする
 
-            return false;
-        }
-
-        public override void Execute()
+        public override Result Execute()
         {
-            // Teams上のファイルやフォルダで「リンクをコピー」すると、クリップボードにText形式でSharePointのURLが格納される
-            // これをHTMLタグのリンクに変換し、Html形式でクリップボードに上書きする
+            // 変換可否の事前チェック
+            if (!canExecute()) return Result.SKIP;
 
             // クリップボードからデータをTEXT形式で取得
             string text = ClipboardWrapper.GetText();
@@ -191,6 +180,20 @@ namespace clipboard_converter_for_teams
 
             // 変換結果を出力
             outputResult(text, link);
+
+            return Result.SUCCESS;
+        }
+
+        private bool canExecute()
+        {
+            // クリップボードにTEXT形式データがあり
+            if (ClipboardWrapper.ContainsText())
+            {
+                // そのデータが「http」から始まっていたら、URLと判断する
+                if (ClipboardWrapper.GetText().StartsWith("http")) return true;
+            }
+
+            return false;
         }
     }
 }
