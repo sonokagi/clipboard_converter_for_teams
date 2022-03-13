@@ -114,60 +114,45 @@ namespace UnitTest
         [TestMethod]
         public void Empty_Then_OutputNothing()
         {
-            using (var output = new StringWriter())
+            using (var outputSpy = new ConsoleOutSpy())
             {
-                var stdout = Console.Out;
-                Console.SetOut(output);
-
                 // クリップボードが空の場合
                 ClipboardWrapper.Clear();
 
                 ClipboardConverterCollection.Execute();
 
                 // コンソールには何も出力されない
-                Check.ConsoleNoOutput(output.ToString());
-
-                Console.SetOut(stdout);
+                Check.ConsoleNoOutput(outputSpy.GetOutput());
             }
         }
 
         [TestMethod]
         public void HtmlLinkToPost_Then_OutputCoversionResult()
         {
-            using (var output = new StringWriter())
+            using (var outputSpy = new ConsoleOutSpy())
             {
-                var stdout = Console.Out;
-                Console.SetOut(output);
-
                 // 投稿へのリンクのHtmlデータと、http以外で始まるテキストがある場合
                 ClipboardWrapper.SetHtmlFragmentPartAndText(html_link_to_post_, other_text_);
 
                 ClipboardConverterCollection.Execute();
 
                 // コンソールに変換結果を出力
-                Check.ConsoleOut(html_link_to_post_, expect_shortened_html_, output.ToString());
-
-                Console.SetOut(stdout);
+                Check.ConsoleOut(html_link_to_post_, expect_shortened_html_, outputSpy.GetOutput());
             }
         }
 
         [TestMethod]
         public void TextStartWithHttp_Then_OutputCoversionResult()
         {
-            using (var output = new StringWriter())
+            using (var outputSpy = new ConsoleOutSpy())
             {
-                var stdout = Console.Out;
-                Console.SetOut(output);
-
                 // httpから始まるテキストがある場合
                 ClipboardWrapper.SetText(text_start_with_http_);
 
                 ClipboardConverterCollection.Execute();
 
                 // コンソールに変換結果を出力
-                Check.ConsoleOut(text_start_with_http_, expect_html_link_to_url_, output.ToString());
-
-                Console.SetOut(stdout);
+                Check.ConsoleOut(text_start_with_http_, expect_html_link_to_url_, outputSpy.GetOutput());
             }
         }
     }
@@ -196,7 +181,7 @@ namespace UnitTest
             Check.Text(String.Empty);
         }
 
-        [TestMethod]
+        [TestMethod]    
         public void SetEmptyToText_Then_ClipboardHasEmptyText()
         {
             // テキストを空で指定した場合
@@ -204,6 +189,48 @@ namespace UnitTest
             // 空のテキストデータが格納される
             Check.HasTextData();
             Check.Text(String.Empty);
+        }
+    }
+
+    // コンソール出力を横取りするクラス
+    public class ConsoleOutSpy : IDisposable
+    {
+        // 参考にした情報
+        // ・コンソールアプリの中で標準出力している文言をMSTestでテストしたい
+        //   https://gozuk16.hatenablog.com/entry/2016/05/19/194720
+        // ・[Memo] デストラクタが呼ばれるタイミングの検証　その1
+        //   https://blog.hiros-dot.net/?p=5416
+        // ・[Memo] デストラクタが呼ばれるタイミングの検証　その3 ～IDisposableインターフェースの実装～
+        //   https://blog.hiros-dot.net/?p=5424
+        // ・C# の Dispose を正しく実装する
+        //   https://qiita.com/hkuno/items/e35c7e306e852ced375d
+
+        private bool disposedValue;
+        private TextWriter outputOriginal;
+        private TextWriter outputSpy;
+
+        public ConsoleOutSpy()
+        {
+            // コンソールの出力先を置き換える
+            outputSpy = new StringWriter();
+            outputOriginal = Console.Out;
+            Console.SetOut(outputSpy);
+        }
+
+        public string GetOutput()
+        {
+            return outputSpy.ToString();
+        }
+
+        public void Dispose()
+        {
+            if (!disposedValue)
+            {
+                // コンソールの出力先を戻す
+                Console.SetOut(outputOriginal);
+                outputSpy.Dispose();
+                disposedValue = true;
+            }
         }
     }
 
